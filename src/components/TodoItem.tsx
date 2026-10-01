@@ -33,6 +33,11 @@ export const TodoItem = ({
     onEdit(null);
   };
 
+  const isLoading =
+    deletingTodoId === todo.id ||
+    updatingTodoId === todo.id ||
+    listOfUpdatedTodos.includes(todo.id);
+
   useEffect(() => {
     if (editingTodoId === todo.id) {
       editting.current?.focus();
@@ -63,6 +68,16 @@ export const TodoItem = ({
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      handleCancelEdit();
+    }
+
+    if (event.key === 'Enter') {
+      handleFinishEdit();
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -86,15 +101,7 @@ export const TodoItem = ({
           value={editingTitle}
           autoFocus
           onChange={event => setEditingTitle(event.target.value)}
-          onKeyDown={event => {
-            if (event.key === 'Escape') {
-              handleCancelEdit();
-            }
-
-            if (event.key === 'Enter') {
-              handleFinishEdit();
-            }
-          }}
+          onKeyDown={handleKeyDown}
           onBlur={() => handleFinishEdit()}
         />
       ) : (
@@ -121,10 +128,7 @@ export const TodoItem = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active':
-            deletingTodoId === todo.id ||
-            updatingTodoId === todo.id ||
-            listOfUpdatedTodos.includes(todo.id),
+          'is-active': isLoading,
         })}
       >
         <div

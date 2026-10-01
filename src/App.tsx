@@ -9,7 +9,7 @@ import {
   updateTodo,
   USER_ID,
 } from './api/todos';
-import { Todo } from './types/Todo';
+import { Todo, Status, ErrorMsg } from './types/Todo';
 import cn from 'classnames';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoList } from './components/TodoList';
@@ -18,7 +18,7 @@ import { Header } from './components/Header';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [status, setStatus] = useState<'all' | 'active' | 'completed'>('all');
+  const [status, setStatus] = useState<Status>(Status.All);
   const [hasError, setHasError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -32,9 +32,9 @@ export const App: React.FC = () => {
 
   const filterdTodos = todos.filter(todo => {
     switch (status) {
-      case 'active':
+      case Status.Active:
         return !todo.completed;
-      case 'completed':
+      case Status.Completed:
         return todo.completed;
       default:
         return true;
@@ -58,7 +58,7 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch(() => {
         setHasError(true);
-        setErrorMsg('Unable to load todos');
+        setErrorMsg(ErrorMsg.Loading);
       });
   }, []);
 
@@ -94,14 +94,14 @@ export const App: React.FC = () => {
 
         setNewTodoTitle('');
       } catch {
-        setErrorMsg('Unable to add a todo');
+        setErrorMsg(ErrorMsg.Adding);
         setHasError(true);
         setTempTodo(null);
       } finally {
         setIsAdding(false);
       }
     } else {
-      setErrorMsg('Title should not be empty');
+      setErrorMsg(ErrorMsg.EmptyTitle);
       setHasError(true);
     }
   };
@@ -114,7 +114,7 @@ export const App: React.FC = () => {
 
       return true;
     } catch {
-      setErrorMsg('Unable to delete a todo');
+      setErrorMsg(ErrorMsg.Deleting);
       setHasError(true);
 
       return false;
@@ -146,7 +146,7 @@ export const App: React.FC = () => {
     );
 
     if (hasFailed) {
-      setErrorMsg('Unable to delete a todo');
+      setErrorMsg(ErrorMsg.Deleting);
 
       setHasError(true);
     }
@@ -169,7 +169,7 @@ export const App: React.FC = () => {
         }),
       );
     } catch {
-      setErrorMsg('Unable to update a todo');
+      setErrorMsg(ErrorMsg.Updating);
       setHasError(true);
     } finally {
       setUpdatingTodoId(null);
@@ -208,7 +208,7 @@ export const App: React.FC = () => {
       );
     } catch {
       setHasError(true);
-      setErrorMsg('Unable to update a todo');
+      setErrorMsg(ErrorMsg.Updating);
     } finally {
       setListOfUpdatedTodos([]);
     }
@@ -234,7 +234,7 @@ export const App: React.FC = () => {
       return true;
     } catch {
       setHasError(true);
-      setErrorMsg('Unable to update a todo');
+      setErrorMsg(ErrorMsg.Updating);
 
       return false;
     } finally {
